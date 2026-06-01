@@ -1,9 +1,17 @@
 name = "PicardLefschetzIntegration"
 uuid = "86202789-ec99-4348-b84a-34e9b1fc693e"
-authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
 version = "1.0.0-DEV"
+authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
+
+[deps]
+FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [compat]
+FastGaussQuadrature = "1.2.0"
+Interpolations = "0.16.2"
+LinearAlgebra = "1.12.0"
 julia = "1.12"
 
 [extras]
