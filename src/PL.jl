@@ -40,6 +40,7 @@ function initialGrid(min, max, pars::parameters)
         point([max[1], max[2]]),
         point([max[1], min[2]])] 
     simplices = [index([1, 2, 3, 4])]
+    @show points
 
     divide_rep(points, simplices, pars)
     return (points, simplices)
