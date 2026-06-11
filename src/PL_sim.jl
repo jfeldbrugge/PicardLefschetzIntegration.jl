@@ -41,7 +41,7 @@ function initialGrid_sim(min, max, pars::parameters)
     
     simplices = hypercube_triangulation_indices(pars.dim)
 
-    divide_rep(points, simplices, pars)
+    divide_rep_sim(points, simplices, pars)
     return points, simplices
 end
 
@@ -49,7 +49,7 @@ end
 # Divide
 ##############################
 
-function divide(points, simplices, pars::parameters)
+function divide_sim(points, simplices, pars::parameters)
     for i in eachindex(simplices)
         sim = simplices[i]
 
@@ -78,13 +78,13 @@ function divide(points, simplices, pars::parameters)
     filter!(sim->sim.active, simplices)
 end
 
-function divide_rep(points, simplices, pars::parameters)
+function divide_rep_sim(points, simplices, pars::parameters)
     n_old = length(simplices)
     n_new = n_old + 1
 
     while n_old != n_new
         n_old = n_new
-        divide(points, simplices, pars)
+        divide_sim(points, simplices, pars)
         n_new = length(simplices)
     end
 end

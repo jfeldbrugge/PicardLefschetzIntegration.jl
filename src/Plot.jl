@@ -1,4 +1,4 @@
-using Makie.GeometryBasics
+
 function triPlot(points, simplices)
     ps = [Polygon([Point2f(real.(points[i].coord)) for i in sim.coord]) for sim in simplices]
     
