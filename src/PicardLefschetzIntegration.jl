@@ -1,6 +1,6 @@
 module PicardLefschetzIntegration
 
-    using LinearAlgebra, FastGaussQuadrature, Interpolations, Combinatorics
+    using LinearAlgebra, FastGaussQuadrature, Interpolations, Combinatorics, SimplexQuad
 
     include("PL.jl")
     include("PL_sim.jl")

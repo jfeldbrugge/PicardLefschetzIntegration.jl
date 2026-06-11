@@ -1,4 +1,6 @@
+##############################
 # Setup the initial grid
+##############################
 
 function hypercube_triangulation_indices(n::Int)
     perms_list = collect(permutations(1:n))
@@ -43,7 +45,9 @@ function initialGrid_sim(min, max, pars::parameters)
     return points, simplices
 end
 
+##############################
 # Divide
+##############################
 
 function divide(points, simplices, pars::parameters)
     for i in eachindex(simplices)
@@ -83,6 +87,8 @@ function divide_rep(points, simplices, pars::parameters)
         divide(points, simplices, pars)
         n_new = length(simplices)
     end
-
-    
 end
+
+##############################
+# Integrate
+##############################
