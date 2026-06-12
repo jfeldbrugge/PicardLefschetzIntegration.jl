@@ -7,7 +7,7 @@ module PicardLefschetzIntegration
     include("PL_sim.jl")
     include("Plot.jl")
     
-    export parameters, initialGrid, flow, find_closest, PL, point, index
-    export initialGrid_sim
-    export triPlot
+    export parameters, initialGrid, flow, find_closest, PL, point, index, thimble
+    export initialGrid_sim, flow_sim, PL_sim
+    export triPlot, linePlot
 end

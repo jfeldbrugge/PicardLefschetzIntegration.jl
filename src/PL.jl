@@ -24,6 +24,11 @@ mutable struct index
     index(coord) = new(coord, true)
 end
 
+mutable struct thimble
+    points
+    simplices
+end
+
 function normalize(p)
     if norm(p) > 1.
         return p / norm(p)

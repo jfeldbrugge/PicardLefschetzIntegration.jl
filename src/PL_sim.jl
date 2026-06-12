@@ -48,7 +48,7 @@ function initialGrid_sim(min, max, pars::parameters)
         sim = deepcopy(simplices[i])
         vertices = map(p -> p.coord, points[sim.coord])
         vol = real(volume_simplex(stack(vertices, dims=1)))
-        @show vol
+        
         if vol < 0
             simplices[i].coord[end - 1], simplices[i].coord[end] = sim.coord[end], sim.coord[end - 1]
         end
@@ -69,56 +69,56 @@ end
 
 function divide_sim(points, simplices, pars::parameters)
     dictionary = Dict()
-
     for i in eachindex(simplices)
-        sim = simplices[i]
-
-        edges = filter(v -> issorted(v), collect(permutations(sim.coord, 2)))
-
-        subdivided = false
-        for edge in edges
-            if haskey(dictionary, edge)
-                println("We have already subdivided.")
-                subdivided = true
-                simplices[i].active = false
-
-                index_newPoint = dictionary[edge]
-
-                newsim1 = copy(sim.coord)
-                newsim2 = copy(sim.coord)
-                replace!(newsim1, edge[1] => index_newPoint)
-                replace!(newsim2, edge[2] => index_newPoint)
-                
-                push!(simplices, index(newsim1))
-                push!(simplices, index(newsim2))
+        sim_coord = simplices[i].coord
+        if simplices[i].active
+            edges = filter(v -> issorted(v), collect(permutations(sim_coord, 2)))
+    
+            # Check whether an edge of the simplex sim if it has already been subdivided
+            subdivided = false
+            for edge in edges
+                if haskey(dictionary, edge) && subdivided == false
+                    subdivided = true
+                    simplices[i].active = false
+    
+                    index_newPoint = dictionary[edge]
+    
+                    newsim1 = copy(sim_coord)
+                    newsim2 = copy(sim_coord)
+                    replace!(newsim1, edge[1] => index_newPoint)
+                    replace!(newsim2, edge[2] => index_newPoint)
+                    
+                    push!(simplices, index(newsim1))
+                    push!(simplices, index(newsim2))
+                end
             end
-        end
-
-        if subdivided == false 
-            edge_lengths = [norm(points[edge[1]].coord - points[edge[2]].coord) for edge in edges]
-        
-            index_longest = argmax(edge_lengths)
-            if edge_lengths[index_longest] > pars.δ
-                simplices[i].active = false
-
-                newPoint = point((points[edges[index_longest][1]].coord + points[edges[index_longest][2]].coord) ./ 2)
-        
-                push!(points, newPoint)
-                index_newPoint = length(points)
-
-                newsim1 = copy(sim.coord)
-                newsim2 = copy(sim.coord)
-                replace!(newsim1, edges[index_longest][1] => index_newPoint)
-                replace!(newsim2, edges[index_longest][2] => index_newPoint)
-                
-                push!(simplices, index(newsim1))
-                push!(simplices, index(newsim2))
-
-                dictionary[edges[index_longest]] = index_newPoint
+    
+            # Check the length of the edges and subdivide the simpex when the longest edge exceeds pars.δ
+            if subdivided == false 
+                edge_lengths = [norm(points[edge[1]].coord - points[edge[2]].coord) for edge in edges]
+            
+                index_longest = argmax(edge_lengths)
+                if edge_lengths[index_longest] > pars.δ
+                    simplices[i].active = false
+    
+                    newPoint = point((points[edges[index_longest][1]].coord + points[edges[index_longest][2]].coord) ./ 2)
+            
+                    push!(points, newPoint)
+                    index_newPoint = length(points)
+    
+                    newsim1 = copy(sim_coord)
+                    newsim2 = copy(sim_coord)
+                    replace!(newsim1, edges[index_longest][1] => index_newPoint)
+                    replace!(newsim2, edges[index_longest][2] => index_newPoint)
+                    
+                    push!(simplices, index(newsim1))
+                    push!(simplices, index(newsim2))
+    
+                    dictionary[edges[index_longest]] = index_newPoint
+                end
             end
         end
     end
-    filter!(sim->sim.active, simplices)
 end
 
 function divide_rep_sim(points, simplices, pars::parameters)
@@ -130,6 +130,27 @@ function divide_rep_sim(points, simplices, pars::parameters)
         divide_sim(points, simplices, pars)
         n_new = length(simplices)
     end
+    filter!(sim->sim.active, simplices)
+end
+
+function remove_inactive_points(points, simplices)
+    dictionary = Dict()
+    counter = 0
+    for i in eachindex(points)
+        if points[i].active
+            counter += 1
+            dictionary[i] = counter
+        end
+    end
+
+    for i in eachindex(simplices)
+        coord = copy(simplices[i].coord)
+        simplices[i].coord = [dictionary[j] for j in coord]
+    end
+
+    filter!(p -> p.active, points)
+
+    return points, simplices
 end
 
 ##############################
@@ -139,7 +160,7 @@ end
 function flow_point_sim(S, p, pars::parameters)
     precision = 1e-10
 
-    grad = zero(ComplexF64, pars.dim)
+    grad = zeros(ComplexF64, pars.dim)
     
     for i in 1:pars.dim
         ϵ = zeros(pars.dim)
@@ -154,7 +175,7 @@ end
 function flow_points_sim(S, points, simplices, pars::parameters)
     for p in points
         if p.active
-            p.coord = flow_point(S, p.coord, pars)
+            p.coord = flow_point_sim(S, p.coord, pars)
         end
     end
 
@@ -176,6 +197,7 @@ function flow_sim(S, points, simplices, pars::parameters)
     for _ in 1:pars.N
         flow_points_sim(S, points, simplices, pars)
     end
+    remove_inactive_points(points, simplices)
 end
 
 ##############################
@@ -200,4 +222,17 @@ end
 function integrateSimplex(f, vertices, X, W)
     integrand(p) = jacobian_sim(vertices) * f(mapping_sim(p, vertices))
     return sum(W[i] * integrand(X[i,:]) for i in 1:length(W))
+end
+
+function PL_sim(S, thim::thimble, pars::parameters)
+    X, W = simplexquad(pars.n, pars.dim)
+
+    points_r = map(p->p.coord, thim.points)
+    simplices_r = map(sim->sim.coord, thim.simplices)
+
+    sum = 0
+    for sim in simplices_r
+        sum += integrateSimplex(p -> exp(im * S(p)), stack(points_r[sim], dims=1), X, W)
+    end
+    return sum
 end
