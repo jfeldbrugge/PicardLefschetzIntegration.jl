@@ -32,6 +32,29 @@ function normalize(p)
     end
 end
 
+function find_closest(A::AbstractArray{T}, b::T) where {T<:Real}
+    if length(A) <= 1
+        return firstindex(A)
+    end
+
+    i = searchsortedfirst(A, b)
+
+    if i == firstindex(A)
+        return i
+    elseif i > lastindex(A)
+        return lastindex(A)
+    else
+        prev_dist = b - A[i-1]
+        next_dist = A[i] - b
+
+        if prev_dist < next_dist
+            return i - 1
+        else
+            return i
+        end
+    end
+end
+
 # Setup the initial grid
 function initialGrid(min, max, pars::parameters)
     points = [
@@ -180,27 +203,4 @@ function PL(S, thimble, pars::parameters)
         sum = sum + IntegrateQuad(integrand, quad, pars.n, lattice, weights)
     end
     return sum
-end
-
-function find_closest(A::AbstractArray{T}, b::T) where {T<:Real}
-    if length(A) <= 1
-        return firstindex(A)
-    end
-
-    i = searchsortedfirst(A, b)
-
-    if i == firstindex(A)
-        return i
-    elseif i > lastindex(A)
-        return lastindex(A)
-    else
-        prev_dist = b - A[i-1]
-        next_dist = A[i] - b
-
-        if prev_dist < next_dist
-            return i - 1
-        else
-            return i
-        end
-    end
 end
