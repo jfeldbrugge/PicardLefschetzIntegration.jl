@@ -295,7 +295,10 @@ function PL(S, thim::thimble, pars::parameters)
 
     sum = 0
     for sim in simplices_r
-        sum += integrateSimplex(p -> exp(im * S(p)), stack(points_r[sim], dims=1), X, W)
+        if maximum(real.(im * map(S, points_r[sim]))) > pars.τ
+            sum += integrateSimplex(p -> exp(im * S(p)), stack(points_r[sim], dims=1), X, W)
+        end
     end
+
     return sum
 end
