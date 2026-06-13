@@ -10,7 +10,10 @@ Let us first consider the Fresnel integral
 ```math
 I = \int_{-\infty}^\infty e^{i x^2}\mathrm{d}x = (1+i)\sqrt{\frac{\pi}{2}}
 ```
-The integral has a single critical point at $x = 0$. The associated Lefschetz thimble is the diagonal contour $\mathcal{J}=(1+i)\mathbb{R}$.
+The integral has a single critical point at $x = 0$. The associated Lefschetz thimble is the diagonal contour 
+```math
+\mathcal{J}=(1+i)\mathbb{R}$.
+```
 
 ```@example tutorial1
 using PicardLefschetzIntegration, CairoMakie, Makie.GeometryBasics
