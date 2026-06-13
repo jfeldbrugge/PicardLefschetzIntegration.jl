@@ -12,26 +12,31 @@ I = \int_{-\infty}^\infty e^{i x^2}\mathrm{d}x = (1+i)\sqrt{\frac{\pi}{2}}
 ```
 The integral has a single critical point at $x = 0$. The associated Lefschetz thimble is the diagonal contour 
 ```math
-\mathcal{J}=(1+i)\mathbb{R}$.
+\mathcal{J}=(1+i)\mathbb{R}.
 ```
 
 ```@example tutorial1
 using PicardLefschetzIntegration, CairoMakie, Makie.GeometryBasics
 
-function linePlot(thim::thimble)
+function linePlot(S, thim::thimble)
     filter!(sim->sim.active, thim.simplices)
     lines = reduce(vcat, [[Point2f(real(thim.points[i].coord[1]), imag(thim.points[i].coord[1])) for i in sim.coord] for sim in thim.simplices])
     vertices = stack(map(p -> p.coord, thim.points), dims=1)
 
     fig = Figure()
     ax = Axis(fig[1, 1], aspect=1)
+
+    heatmap!(ax,  LinRange(-5, 5, 100),  LinRange(-4, 4, 100), [real(im * S([u + im * v])) for u in LinRange(-5, 5, 100), v in LinRange(-4, 4, 100)])
+    
     linesegments!(ax, lines, linewidth=2, color=:red)
+    
     scatter!(ax, real.(vertices[:]), imag.(vertices[:]))
+    
     for i in 1:length(thim.points)
         text!(ax, real(vertices[i]), imag(vertices[i]) + 0.2, text = string(i))
     end
     limits!(ax, -5, 5, -4, 4)
-    fig    
+    return fig
 end
 
 pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 20, n = 5, dim = 1)
@@ -39,7 +44,7 @@ pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 20, n = 5, dim = 1)
 thim = initialGrid([-4], [4], pars)
 S(p) = p[1]^2
 flow(S, thim, pars)
-linePlot(thim)
+linePlot(S, thim)
 ```
 
 The integral evaluates to $(1+i)\sqrt{\pi/2}$
@@ -50,9 +55,9 @@ PL_integrate(S, thim, pars)
 ## Pearcey integral
 The Pearcey integral 
 ```math
-I = \int_{-\infty}^\infty \int_{-\infty}^\infty e^{i \omega(t^4 + x_2 t^2 + x_1 t)}\mathrm{d}t
+I = \int_{-\infty}^\infty e^{i \omega(t^4 + x_2 t^2 + x_1 t)}\mathrm{d}t
 ```
-is the canonical diffraction integral associated with the unfold of the cusp catastrophe. We evaluate the thimbles on a coarse lattice in $x_1$ and $x_2$
+is the canonical diffraction integral associated with the unfolding of the cusp catastrophe. We evaluate the thimbles on a coarse lattice in $x_1$ and $x_2$
 
 ```@example tutorial2
 using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie
