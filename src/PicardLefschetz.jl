@@ -83,7 +83,8 @@ end
 
 Find indeces of closest point in a vector.
 """
-function find_closest(A::AbstractArray{T}, b::T) where {T<:Real}
+# function find_closest(A::AbstractArray{T}, b::T) where {T<:Real}
+function find_closest(A, b)
     if length(A) <= 1
         return firstindex(A)
     end

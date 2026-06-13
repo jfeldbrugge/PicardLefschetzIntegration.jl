@@ -8,4 +8,6 @@ using Test
     thim = initialGrid([-4], [4], pars)
     flow!(S, thim, pars)
     @test abs.(PL_integrate(S, thim, pars) - (1+im) * sqrt(π / 2)) < 1e-4
+
+    @test find_closest([1., 2., 3.], 1.8) == 2
 end
