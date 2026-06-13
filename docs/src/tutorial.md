@@ -61,8 +61,7 @@ pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 50, n = 5, dim = 1)
 
 S(p, x₁, x₂, ω) = ω * (p[1]^4 + x₂ * p[1]^2 + x₁ * p[1])
 
-aRange_L = range(-2., 2., 8)
-bRange_L = range(-2., 2., 8)
+aRange_L, bRange_L = range(-2., 2., 8), range(-2., 2., 8)
 
 thimbles = Array{thimble}(undef, length(aRange_L), length(bRange_L));
 let ω = 1
@@ -80,8 +79,7 @@ map(t->length(t.simplices), thimbles)
 
 Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$
 ```@example tutorial2
-aRange = range(-2., 2., 200)
-bRange = range(-2., 2., 200)
+aRange, bRange = range(-2., 2., 200), range(-2., 2., 200)
 
 let ω = 20.
     data = zeros(Complex, length(aRange), length(bRange))
@@ -116,8 +114,7 @@ pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 20, n = 5, dim = 2)
 
 S(p, x₁, x₂, x₃, ω) = ω * (p[1]^3 - 3. * p[1] * p[2]^2 - x₃ * (p[1]^2 + p[2]^2) - x₂ * p[2] - x₁ * p[1])
 
-aRange_L = range(-2., 2., 8)
-bRange_L = range(-2., 2., 8)
+aRange_L, bRange_L = range(-2., 2., 8), range(-2., 2., 8)
 
 thimbles = Array{thimble}(undef, length(aRange_L), length(bRange_L));
 let ω = 1, x₃ = 1
@@ -135,8 +132,7 @@ map(t->length(t.simplices), thimbles)
 
 Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$
 ```@example tutorial3
-aRange = range(-2., 2., 100)
-bRange = range(-2., 2., 100)
+aRange, bRange = range(-2., 2., 100), range(-2., 2., 100)
 
 let ω = 20, x₃ = 1
     data = zeros(Complex, length(aRange), length(bRange))
