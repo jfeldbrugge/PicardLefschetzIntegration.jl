@@ -7,5 +7,5 @@ using Test
     S(p) = p[1]^2
     thim = initialGrid([-4], [4], pars)
     flow(S, thim, pars)
-    @test abs.(PL(S, thim, pars) - (1+im) * sqrt(π / 2)) < 1e-4
+    @test abs.(PL_integrate(S, thim, pars) - (1+im) * sqrt(π / 2)) < 1e-4
 end
