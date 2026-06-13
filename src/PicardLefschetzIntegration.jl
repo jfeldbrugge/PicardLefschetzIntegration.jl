@@ -3,11 +3,9 @@ module PicardLefschetzIntegration
     using LinearAlgebra, FastGaussQuadrature, Interpolations, Combinatorics, SimplexQuad
     using CairoMakie, Makie.GeometryBasics
 
-    include("PL.jl")
-    include("PL_sim.jl")
+    include("PicardLefschetz.jl")
     include("Plot.jl")
     
-    export parameters, initialGrid, flow, find_closest, PL, point, index, thimble
-    export initialGrid_sim, flow_sim, PL_sim
+    export parameters, point, index, thimble, find_closest, initialGrid, flow, PL
     export triPlot, linePlot
 end

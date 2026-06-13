@@ -1,3 +1,65 @@
+# General functions
+struct parameters
+    δ           #The maximal size of the simplices
+    τ           #Threshold on the real part of the exponent
+    ϵ           #The steps in the downward flow
+    N           #Number of steps in the downward flow
+    n           #Order of quadrature integration
+    dim         #Dimension of the integral
+
+    function parameters(;δ, τ, ϵ, N, n, dim)
+        return new(δ, τ, ϵ, N, n, dim)
+    end
+end
+
+mutable struct point
+    coord::Vector{Complex}
+    active
+    point(coord) = new(coord, true)
+end
+
+mutable struct index
+    coord::Vector{Int}
+    active
+    index(coord) = new(coord, true)
+end
+
+mutable struct thimble
+    points
+    simplices
+end
+
+function normalize(p)
+    if norm(p) > 1.
+        return p / norm(p)
+    else
+        return p
+    end
+end
+
+function find_closest(A::AbstractArray{T}, b::T) where {T<:Real}
+    if length(A) <= 1
+        return firstindex(A)
+    end
+
+    i = searchsortedfirst(A, b)
+
+    if i == firstindex(A)
+        return i
+    elseif i > lastindex(A)
+        return lastindex(A)
+    else
+        prev_dist = b - A[i-1]
+        next_dist = A[i] - b
+
+        if prev_dist < next_dist
+            return i - 1
+        else
+            return i
+        end
+    end
+end
+
 ##############################
 # Setup the initial grid
 ##############################
@@ -31,7 +93,7 @@ function hypercube_triangulation_indices(n::Int)
     return simplex_indices
 end
 
-function initialGrid_sim(min, max, pars::parameters)
+function initialGrid(min, max, pars::parameters)
     points = Vector{point}()
     
     # List the corners of the hypercube
@@ -55,8 +117,9 @@ function initialGrid_sim(min, max, pars::parameters)
     end
 
     # Subdivide the triangles
-    divide_rep_sim(points, simplices, pars)
-    return points, simplices
+    thim = thimble(points, simplices)
+    divide_rep(thim, pars)
+    return thim
 end
 
 function volume_simplex(vertices)
@@ -67,11 +130,11 @@ end
 # Divide
 ##############################
 
-function divide_sim(points, simplices, pars::parameters)
+function divide(thim, pars::parameters)
     dictionary = Dict()
-    for i in eachindex(simplices)
-        sim_coord = simplices[i].coord
-        if simplices[i].active
+    for i in eachindex(thim.simplices)
+        sim_coord = thim.simplices[i].coord
+        if thim.simplices[i].active
             edges = filter(v -> issorted(v), collect(permutations(sim_coord, 2)))
     
             # Check whether an edge of the simplex sim if it has already been subdivided
@@ -79,7 +142,7 @@ function divide_sim(points, simplices, pars::parameters)
             for edge in edges
                 if haskey(dictionary, edge) && subdivided == false
                     subdivided = true
-                    simplices[i].active = false
+                    thim.simplices[i].active = false
     
                     index_newPoint = dictionary[edge]
     
@@ -88,31 +151,31 @@ function divide_sim(points, simplices, pars::parameters)
                     replace!(newsim1, edge[1] => index_newPoint)
                     replace!(newsim2, edge[2] => index_newPoint)
                     
-                    push!(simplices, index(newsim1))
-                    push!(simplices, index(newsim2))
+                    push!(thim.simplices, index(newsim1))
+                    push!(thim.simplices, index(newsim2))
                 end
             end
     
             # Check the length of the edges and subdivide the simpex when the longest edge exceeds pars.δ
             if subdivided == false 
-                edge_lengths = [norm(points[edge[1]].coord - points[edge[2]].coord) for edge in edges]
+                edge_lengths = [norm(thim.points[edge[1]].coord - thim.points[edge[2]].coord) for edge in edges]
             
                 index_longest = argmax(edge_lengths)
                 if edge_lengths[index_longest] > pars.δ
-                    simplices[i].active = false
+                    thim.simplices[i].active = false
     
-                    newPoint = point((points[edges[index_longest][1]].coord + points[edges[index_longest][2]].coord) ./ 2)
+                    newPoint = point((thim.points[edges[index_longest][1]].coord + thim.points[edges[index_longest][2]].coord) ./ 2)
             
-                    push!(points, newPoint)
-                    index_newPoint = length(points)
+                    push!(thim.points, newPoint)
+                    index_newPoint = length(thim.points)
     
                     newsim1 = copy(sim_coord)
                     newsim2 = copy(sim_coord)
                     replace!(newsim1, edges[index_longest][1] => index_newPoint)
                     replace!(newsim2, edges[index_longest][2] => index_newPoint)
                     
-                    push!(simplices, index(newsim1))
-                    push!(simplices, index(newsim2))
+                    push!(thim.simplices, index(newsim1))
+                    push!(thim.simplices, index(newsim2))
     
                     dictionary[edges[index_longest]] = index_newPoint
                 end
@@ -121,43 +184,43 @@ function divide_sim(points, simplices, pars::parameters)
     end
 end
 
-function divide_rep_sim(points, simplices, pars::parameters)
-    n_old = length(simplices)
+function divide_rep(thim::thimble, pars::parameters)
+    n_old = length(thim.simplices)
     n_new = n_old + 1
 
     while n_old != n_new
         n_old = n_new
-        divide_sim(points, simplices, pars)
-        n_new = length(simplices)
+        divide(thim, pars)
+        n_new = length(thim.simplices)
     end
-    filter!(sim->sim.active, simplices)
+    filter!(sim->sim.active, thim.simplices)
 end
 
-function remove_inactive_points(points, simplices)
+function remove_inactive_points(thim::thimble)
     dictionary = Dict()
     counter = 0
-    for i in eachindex(points)
-        if points[i].active
+    for i in eachindex(thim.points)
+        if thim.points[i].active
             counter += 1
             dictionary[i] = counter
         end
     end
 
-    for i in eachindex(simplices)
-        coord = copy(simplices[i].coord)
-        simplices[i].coord = [dictionary[j] for j in coord]
+    for i in eachindex(thim.simplices)
+        coord = copy(thim.simplices[i].coord)
+        thim.simplices[i].coord = [dictionary[j] for j in coord]
     end
 
-    filter!(p -> p.active, points)
+    filter!(p -> p.active, thim.points)
 
-    return points, simplices
+    return thim
 end
 
 ##############################
 # Flow
 ##############################
 
-function flow_point_sim(S, p, pars::parameters)
+function flow_point(S, p, pars::parameters)
     precision = 1e-10
 
     grad = zeros(ComplexF64, pars.dim)
@@ -172,32 +235,32 @@ function flow_point_sim(S, p, pars::parameters)
     return p - pars.ϵ * normalize(conj(im * grad))
 end
 
-function flow_points_sim(S, points, simplices, pars::parameters)
-    for p in points
+function flow_points(S, thim::thimble, pars::parameters)
+    for p in thim.points
         if p.active
-            p.coord = flow_point_sim(S, p.coord, pars)
+            p.coord = flow_point(S, p.coord, pars)
         end
     end
 
-    for i in eachindex(simplices)
-        if simplices[i].active
-            for v in simplices[i].coord
-                if real(im * S(points[v].coord)) < pars.τ
-                    simplices[i].active = false
-                    points[v].active = false
+    for i in eachindex(thim.simplices)
+        if thim.simplices[i].active
+            for v in thim.simplices[i].coord
+                if real(im * S(thim.points[v].coord)) < pars.τ
+                    thim.simplices[i].active = false
+                    thim.points[v].active = false
                 end
             end
         end
     end
 
-    divide_rep_sim(points, simplices, pars)
+    divide_rep(thim, pars)
 end
 
-function flow_sim(S, points, simplices, pars::parameters)
+function flow(S, thim::thimble, pars::parameters)
     for _ in 1:pars.N
-        flow_points_sim(S, points, simplices, pars)
+        flow_points(S, thim, pars)
     end
-    remove_inactive_points(points, simplices)
+    remove_inactive_points(thim)
 end
 
 ##############################
@@ -210,21 +273,21 @@ function get_affine_map(vertices)
     return v₀, B
 end
 
-function mapping_sim(p, vertices)
+function mapping(p, vertices)
     v₀, B = get_affine_map(vertices)
     return v₀ + B * p
 end
 
-function jacobian_sim(vertices)
+function jacobian(vertices)
     return det(get_affine_map(vertices)[2])
 end
 
 function integrateSimplex(f, vertices, X, W)
-    integrand(p) = jacobian_sim(vertices) * f(mapping_sim(p, vertices))
+    integrand(p) = jacobian(vertices) * f(mapping(p, vertices))
     return sum(W[i] * integrand(X[i,:]) for i in 1:length(W))
 end
 
-function PL_sim(S, thim::thimble, pars::parameters)
+function PL(S, thim::thimble, pars::parameters)
     X, W = simplexquad(pars.n, pars.dim)
 
     points_r = map(p->p.coord, thim.points)
