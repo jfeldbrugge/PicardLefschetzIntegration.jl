@@ -4,5 +4,5 @@ module PicardLefschetzIntegration
 
     include("PicardLefschetz.jl")
     
-    export parameters, point, index, thimble, find_closest, initialGrid, flow, PL_integrate
+    export parameters, point, index, thimble, find_closest, initialGrid, flow!, PL_integrate
 end

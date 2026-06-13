@@ -347,11 +347,11 @@ function flow_points(S, thim::thimble, pars::parameters)
 end
 
 """
-    flow(S, thim::thimble, pars::parameters)
+    flow!(S, thim::thimble, pars::parameters)
 
 Flow the thimble pars.N steps forward in the downward flow.
 """
-function flow(S, thim::thimble, pars::parameters)
+function flow!(S, thim::thimble, pars::parameters)
     for _ in 1:pars.N
         flow_points(S, thim, pars)
     end

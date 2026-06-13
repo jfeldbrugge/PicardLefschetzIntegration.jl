@@ -26,7 +26,12 @@ function linePlot(S, thim::thimble)
     fig = Figure()
     ax = Axis(fig[1, 1], aspect=1)
 
-    heatmap!(ax,  LinRange(-5, 5, 100),  LinRange(-4, 4, 100), [real(im * S([u + im * v])) for u in LinRange(-5, 5, 100), v in LinRange(-4, 4, 100)])
+    us, vs = LinRange(-5, 5, 100), LinRange(-4, 4, 100)
+    h = [real(im * S([u + im * v])) for u in us, v in vs]
+    
+    heatmap!(ax, us, vs, h)
+
+    contour!(ax, us, vs, h, color=:black, levels=20)
     
     linesegments!(ax, lines, linewidth=2, color=:red)
     
@@ -43,7 +48,7 @@ pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 20, n = 5, dim = 1)
 
 thim = initialGrid([-4], [4], pars)
 S(p) = p[1]^2
-flow(S, thim, pars)
+flow!(S, thim, pars)
 linePlot(S, thim)
 ```
 
@@ -74,7 +79,7 @@ let ω = 1
         x₁, x₂ = aRange_L[i], bRange_L[j]
         
         thim = initialGrid([-4], [4], pars)
-        flow(p -> S(p, x₁, x₂, ω), thim, pars)
+        flow!(p -> S(p, x₁, x₂, ω), thim, pars)
         thimbles[i, j] = thim
     end
 end
@@ -127,7 +132,7 @@ let ω = 1, x₃ = 1
         x₁, x₂ = aRange_L[i], bRange_L[j]
         
         thim = initialGrid([-4, -4], [4, 4], pars)
-        flow(p -> S(p, x₁, x₂, x₃, ω), thim, pars)
+        flow!(p -> S(p, x₁, x₂, x₃, ω), thim, pars)
         thimbles[i, j] = thim
     end
 end
