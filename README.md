@@ -26,7 +26,7 @@ julia> import Pkg; Pkg.add("PicardLefschetzIntegration")
 ```
 
 ## Usage
-Please have a look at the [Tutorial page](https://jfeldbrugge.github.io/PicardLefschetzIntegration.jl/stable/tutorial/) for details on how to use this package.
+Please have a look at the [Tutorial page](https://jfeldbrugge.github.io/PicardLefschetzIntegration.jl/stable/) for details on how to use this package.
 
 ## Citation
 When using this package for scientific research, please cite the Zenodo link [](). You can use the Bibtex entry
