@@ -9,7 +9,12 @@ function linePlot(S, thim::thimble)
     fig = Figure()
     ax = Axis(fig[1, 1], aspect=1)
 
-    heatmap!(ax,  LinRange(-5, 5, 100),  LinRange(-4, 4, 100), [real(im * S([u + im * v])) for u in LinRange(-5, 5, 100), v in LinRange(-4, 4, 100)])
+    us, vs = LinRange(-5, 5, 100), LinRange(-4, 4, 100)
+    h = [real(im * S([u + im * v])) for u in us, v in vs]
+
+    heatmap!(ax, us, vs, h)
+
+    contour!(ax, us, vs, h, color=:black, levels=20)
 
     linesegments!(ax, lines, linewidth=2, color=:red)
 
@@ -26,8 +31,8 @@ pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 20, n = 5, dim = 1)
 
 thim = initialGrid([-4], [4], pars)
 S(p) = p[1]^2
-flow(S, thim, pars)
-linePlot(S, thim)</code></pre><img src="6b9eb0cc.png" alt="Example block output"/><p>The integral evaluates to <span>$(1+i)\sqrt{\pi/2}$</span></p><pre><code class="language-julia hljs">PL_integrate(S, thim, pars)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1.2533126304104458 + 1.2533285739627602im</code></pre><h2 id="Pearcey-integral"><a class="docs-heading-anchor" href="#Pearcey-integral">Pearcey integral</a><a id="Pearcey-integral-1"></a><a class="docs-heading-anchor-permalink" href="#Pearcey-integral" title="Permalink"></a></h2><p>The Pearcey integral </p><p class="math-container">\[I = \int_{-\infty}^\infty e^{i \omega(t^4 + x_2 t^2 + x_1 t)}\mathrm{d}t\]</p><p>is the canonical diffraction integral associated with the unfolding of the cusp catastrophe. We evaluate the thimbles on a coarse lattice in <span>$x_1$</span> and <span>$x_2$</span></p><pre><code class="language-julia hljs">using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie
+flow!(S, thim, pars)
+linePlot(S, thim)</code></pre><img src="57a5a560.png" alt="Example block output"/><p>The integral evaluates to <span>$(1+i)\sqrt{\pi/2}$</span></p><pre><code class="language-julia hljs">PL_integrate(S, thim, pars)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1.2533126304104458 + 1.2533285739627602im</code></pre><h2 id="Pearcey-integral"><a class="docs-heading-anchor" href="#Pearcey-integral">Pearcey integral</a><a id="Pearcey-integral-1"></a><a class="docs-heading-anchor-permalink" href="#Pearcey-integral" title="Permalink"></a></h2><p>The Pearcey integral </p><p class="math-container">\[I = \int_{-\infty}^\infty e^{i \omega(t^4 + x_2 t^2 + x_1 t)}\mathrm{d}t\]</p><p>is the canonical diffraction integral associated with the unfolding of the cusp catastrophe. We evaluate the thimbles on a coarse lattice in <span>$x_1$</span> and <span>$x_2$</span></p><pre><code class="language-julia hljs">using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie
 
 pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 50, n = 5, dim = 1)
 
@@ -41,7 +46,7 @@ let ω = 1
         x₁, x₂ = aRange_L[i], bRange_L[j]
 
         thim = initialGrid([-4], [4], pars)
-        flow(p -&gt; S(p, x₁, x₂, ω), thim, pars)
+        flow!(p -&gt; S(p, x₁, x₂, ω), thim, pars)
         thimbles[i, j] = thim
     end
 end
@@ -86,7 +91,7 @@ let ω = 1, x₃ = 1
         x₁, x₂ = aRange_L[i], bRange_L[j]
 
         thim = initialGrid([-4, -4], [4, 4], pars)
-        flow(p -&gt; S(p, x₁, x₂, x₃, ω), thim, pars)
+        flow!(p -&gt; S(p, x₁, x₂, x₃, ω), thim, pars)
         thimbles[i, j] = thim
     end
 end
@@ -115,4 +120,4 @@ let ω = 20, x₃ = 1
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="3e6442bb.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 13 June 2026 20:16">Saturday 13 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="3e6442bb.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Saturday 13 June 2026 20:36">Saturday 13 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
