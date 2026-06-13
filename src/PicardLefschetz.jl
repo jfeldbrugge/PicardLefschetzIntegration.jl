@@ -287,7 +287,7 @@ function integrateSimplex(f, vertices, X, W)
     return sum(W[i] * integrand(X[i,:]) for i in 1:length(W))
 end
 
-function PL(S, thim::thimble, pars::parameters)
+function PL_integrate(S, thim::thimble, pars::parameters)
     X, W = simplexquad(pars.n, pars.dim)
 
     points_r = map(p->p.coord, thim.points)
@@ -301,4 +301,22 @@ function PL(S, thim::thimble, pars::parameters)
     end
 
     return sum
+end
+
+function triPlot(thim::thimble)
+    filter!(sim->sim.active, thim.simplices)
+    ps = [Polygon([Point2f(real.(thim.points[i].coord)) for i in sim.coord]) for sim in thim.simplices]
+    
+    f = Figure()
+    ax = Axis(f[1, 1]; aspect=1)
+    poly!(ax, ps, color = rand(RGBf, length(ps)))
+
+    vertices = stack(real.(map(p -> p.coord, thim.points)), dims=1)
+    scatter!(ax, vertices[:, 1], vertices[:, 2])
+
+    for i in 1:length(thim.points)
+        text!(ax, vertices[i, 1], vertices[i, 2] + 0.2, text = string(i))
+    end
+
+    return f
 end
