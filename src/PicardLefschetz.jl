@@ -13,12 +13,12 @@ Contains the parameters of the Picard Lefschetz integration method.
     n           The order of the simplex quadrature integration scheme.
 """
 struct parameters
-    δ           #The maximal size of the simplices
-    τ           #Threshold on the real part of the exponent
-    ϵ           #The steps in the downward flow
-    N           #Number of steps in the downward flow
-    n           #Order of quadrature integration
-    dim         #Dimension of the integral
+    δ::Float64           #The maximal size of the simplices
+    τ::Float64           #Threshold on the real part of the exponent
+    ϵ::Float64           #The steps in the downward flow
+    N::Integer           #Number of steps in the downward flow
+    n::Integer           #Order of quadrature integration
+    dim::Integer         #Dimension of the integral
 
     function parameters(;δ, τ, ϵ, N, n, dim)
         return new(δ, τ, ϵ, N, n, dim)
