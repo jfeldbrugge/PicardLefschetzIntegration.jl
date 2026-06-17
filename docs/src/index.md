@@ -70,3 +70,7 @@ When using this package, please cite the paper *Oscillatory path integrals for r
 ## Contributors
 This code was written by:
 * Job Feldbrugge ([job.feldbrugge@ed.ac.uk](mailto:job.feldbrugge@ed.ac.uk))
+
+## Related packages
+Related packages for the evaluation of oscillatory integrals in the complex plane include
+* [NumericalSteepestDescent.jl](https://github.com/tcaussade/NumericalSteepestDescent.jl)
