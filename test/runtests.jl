@@ -18,7 +18,9 @@ using Test
     @test abs.(PL_integrate(S, thim, pars) - im * π) < 1e-7
 
     # Test find_closest
+    @test find_closest([1.], 0.8) == 1
     @test find_closest([1., 2., 3.], 0.8) == 1
     @test find_closest([1., 2., 3.], 1.8) == 2
+    @test find_closest([1., 2., 3.], 2.2) == 2
     @test find_closest([1., 2., 3.], 3.8) == 3
 end
