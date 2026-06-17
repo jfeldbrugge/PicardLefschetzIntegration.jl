@@ -28,7 +28,7 @@ julia> import Pkg; Pkg.add("PicardLefschetzIntegration")
 Please have a look at the Tutorial page for details on how to use this package.
 
 ## Citation
-When using this package, please cite the paper *Oscillatory path integrals for radio astronomy* (2023) by Feldbrugge, Pen and Turok and the Zenodo link [DOI:10.5281/zenodo.20683184](https://doi.org/10.5281/zenodo.20683184). You can use the Bibtex entries
+When using this package, please cite the paper *Oscillatory path integrals for radio astronomy* (2023) by Feldbrugge, Pen and Turok and the Zenodo link [DOI:10.5281/zenodo.20683184](https://doi.org/10.5281/zenodo.20683184). You can use the BibTeX entries
 
 ```
 @ARTICLE{2023AnPhy.45169255F,
