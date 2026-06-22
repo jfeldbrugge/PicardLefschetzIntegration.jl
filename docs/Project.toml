@@ -5,3 +5,6 @@ GeometryBasics = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 PicardLefschetzIntegration = "86202789-ec99-4348-b84a-34e9b1fc693e"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
+
+[compat]
+ProgressMeter = "1.11.0"
