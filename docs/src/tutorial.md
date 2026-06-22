@@ -109,7 +109,7 @@ end
 ```
 
 ## Elliptic integral
-Consider the canonical diffraction integral associated to the unfolding of the elliptic integral
+Consider the canonical diffraction integral associated with the unfolding of the elliptic integral
 ```math
 I = \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
     t^3 - 3 t v^2 - x_3 (t^2 + v^2) - x_2 v - x_1 t
@@ -154,6 +154,80 @@ let ω = 20, x₃ = 1
         data[i, j] = PL_integrate(p -> S(p, x₁, x₂, x₃, ω), thimbles[ii, jj], pars)
     end
 
+    fig = Figure()
+    ax = Axis(fig[1, 1], aspect = 1) 
+    heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
+    fig
+end
+```
+
+## 2D Gaussian lens
+Consider the Kirchhoff-Fresnel diffraction integral associated with a thin Gaussian lens 
+```math
+I = \frac{\omega}{2\pi i} \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
+    \frac{(\bm{x}-\bm{y})^2}{2} + e^{\frac{1+x_1^2 + 2 x_2^2}{2}}
+\right)}\mathrm{d}x_1 \mathrm{d}x_2\,.
+```
+We evaluate the thimbles on a coarse lattice in $y_1$ and $y_2$,
+
+```@example tutorial4
+using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie, GeometryBasics
+
+pars = parameters(δ = 1., τ = -10., ϵ = 0.1, N = 20, n = 8, dim = 2)
+
+φ(p) = exp(- (p[1]^2 + 2 * p[2]^2) / 2)
+T(p, y₁, y₂, ω) = ω * (((p[1] - y₁)^2 + (p[2] - y₂)^2) / 2. + φ(p))
+
+aRange_L, bRange_L = range(-2., 2., 8), range(-2., 2., 8)
+
+thimbles = Array{thimble}(undef, length(aRange_L), length(bRange_L));
+let ω = 1
+    @showprogress Threads.@threads for (i, j) in collect(Iterators.product(eachindex(aRange_L),eachindex(bRange_L)))
+        y₁, y₂ = aRange_L[i], bRange_L[j]
+        
+        thim = initialGrid([-4, -4], [4, 4], pars)
+        flow!(p -> T(p, y₁, y₂, ω), thim, pars)
+        thimbles[i, j] = thim
+    end
+end
+
+map(t->length(t.simplices), thimbles)
+```
+
+The thimbles look like 
+
+```@example tutorial4
+function plotMesh(thim::thimble)
+    verts1 = map(p -> Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[1])), filter(p -> p.active, thim.points))
+    verts2 = map(p -> Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[2])), filter(p -> p.active, thim.points))
+    faces = map(p ->TriangleFace(p.coord), thim.simplices)
+
+    fig = Figure()
+    ax1 = Axis3(fig[1, 1], aspect = :data, xlabel = "Re[p₁]", ylabel = "Re[p₂]", zlabel = "Im[p₁]")
+    ax2 = Axis3(fig[1, 2], aspect = :data, xlabel = "Re[p₁]", ylabel = "Re[p₂]", zlabel = "Im[p₂]")
+    mesh!(ax1, verts1, faces, color = :orange, shading = true)
+    mesh!(ax2, verts2, faces, color = :orange, shading = true)
+
+    fig
+end
+
+plotMesh(thimbles[4, 4])
+```
+
+Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$
+
+```@example tutorial4
+aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
+let ω = 75
+    data = zeros(Complex, length(aRange), length(bRange));
+    Threads.@threads for (i, j) in collect(Iterators.product(eachindex(aRange),eachindex(bRange)))
+        y₁, y₂ = aRange[i], bRange[j]
+        ii, jj = find_closest(aRange_L, y₁), find_closest(bRange_L, y₂)
+        
+        data[i, j] = PL_integrate(p -> T(p, y₁, y₂, ω), thimbles[ii, jj], pars)
+    end
+    data = ω / (2π * im) .* data
+    
     fig = Figure()
     ax = Axis(fig[1, 1], aspect = 1) 
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
