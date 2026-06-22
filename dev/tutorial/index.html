@@ -129,7 +129,7 @@ pars = parameters(δ = 1., τ = -10., ϵ = 0.1, N = 20, n = 8, dim = 2)
 φ(p) = exp(- (p[1]^2 + 2 * p[2]^2) / 2)
 T(p, y₁, y₂, ω) = ω * (((p[1] - y₁)^2 + (p[2] - y₂)^2) / 2. + φ(p))
 
-aRange_L, bRange_L = range(-2., 2., 8), range(-2., 2., 8)
+aRange_L, bRange_L = range(-2., 2., 20), range(-2., 2., 20)
 
 thimbles = Array{thimble}(undef, length(aRange_L), length(bRange_L));
 let ω = 1
@@ -142,15 +142,27 @@ let ω = 1
     end
 end
 
-map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8×8 Matrix{Int64}:
- 540  611  669  672  672  669  611  540
- 584  662  706  733  733  706  662  584
- 635  693  751  760  760  751  693  635
- 682  729  773  756  756  773  729  681
- 681  729  773  756  756  773  729  681
- 635  694  751  760  760  751  693  635
- 584  662  706  733  733  706  662  584
- 540  611  669  672  672  669  611  540</code></pre><p>The thimbles look like </p><pre><code class="language-julia hljs">function plotMesh(thim::thimble)
+map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">20×20 Matrix{Int64}:
+ 540  566  594  617  636  637  649  675  …  649  637  636  617  594  566  540
+ 575  596  624  642  676  648  686  702     686  648  676  642  624  596  575
+ 577  612  641  643  672  675  690  719     690  675  672  645  641  612  577
+ 604  619  648  686  707  712  729  738     729  712  707  686  648  619  604
+ 630  658  659  688  732  756  783  768     783  756  730  688  659  658  630
+ 631  665  671  709  711  743  772  774  …  768  743  711  709  671  665  631
+ 646  713  727  756  752  734  763  768     765  734  752  756  727  713  646
+ 643  704  701  751  762  742  761  760     761  742  762  751  701  704  643
+ 670  735  718  732  768  779  782  769     782  779  768  732  718  737  669
+ 650  733  752  748  776  782  792  772     792  782  776  748  752  733  650
+ 650  733  752  748  776  782  792  770  …  790  782  776  748  752  733  650
+ 669  737  718  732  768  779  782  769     782  779  768  732  718  737  669
+ 643  704  701  751  762  740  765  762     765  740  762  751  701  704  643
+ 652  721  727  756  752  734  765  768     765  734  752  756  727  721  652
+ 631  665  671  709  711  743  772  774     768  743  711  709  671  665  631
+ 630  658  659  688  732  756  783  768  …  783  756  730  688  659  658  630
+ 604  619  648  686  707  712  729  738     729  712  707  686  648  619  604
+ 577  612  641  643  672  675  690  719     690  675  672  643  641  612  577
+ 575  596  624  642  676  648  686  702     686  648  676  642  624  596  575
+ 540  566  594  617  636  637  649  675     649  637  636  617  594  566  540</code></pre><p>The thimbles look like </p><pre><code class="language-julia hljs">function plotMesh(thim::thimble)
     verts1 = map(p -&gt; Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[1])), filter(p -&gt; p.active, thim.points))
     verts2 = map(p -&gt; Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[2])), filter(p -&gt; p.active, thim.points))
     faces = map(p -&gt;TriangleFace(p.coord), thim.simplices)
@@ -164,7 +176,7 @@ map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-exam
     fig
 end
 
-plotMesh(thimbles[4, 4])</code></pre><img src="46516da8.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span></p><pre><code class="language-julia hljs">aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
+plotMesh(thimbles[4, 4])</code></pre><img src="ab4cac57.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span></p><pre><code class="language-julia hljs">aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
 let ω = 50
     data = zeros(Complex, length(aRange), length(bRange));
     Threads.@threads for (i, j) in collect(Iterators.product(eachindex(aRange),eachindex(bRange)))
@@ -179,4 +191,4 @@ let ω = 50
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="9fab8759.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 22 June 2026 15:40">Monday 22 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="6dc5d3ef.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Monday 22 June 2026 16:40">Monday 22 June 2026</span>. Using Julia version 1.12.6.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
