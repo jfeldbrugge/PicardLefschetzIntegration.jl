@@ -1,6 +1,6 @@
 name = "PicardLefschetzIntegration"
 uuid = "86202789-ec99-4348-b84a-34e9b1fc693e"
-version = "1.0.1"
+version = "1.0.2"
 authors = ["Job Feldbrugge <14946916+jfeldbrugge@users.noreply.github.com> and contributors"]
 
 [deps]

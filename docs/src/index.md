@@ -6,9 +6,9 @@ CurrentModule = PicardLefschetzIntegration
 
 Documentation for [PicardLefschetzIntegration](https://github.com/jfeldbrugge/PicardLefschetzIntegration.jl). This package numerically evaluates multidimensional oscillatory integrals of the form 
 ```math
-I = \int e^{i S(\bm{x})}\mathrm{d}\bm{x}\,,
+I = \int e^{i f(\bm{x})}\mathrm{d}\bm{x}\,,
 ```
-for meromorphic functions $S$ using Picard Lefschetz theory. We deform the original integration domain in the complex plane onto the Lefschetz thimbles and numerically evaluate the integral.
+for meromorphic functions $f$ using Picard Lefschetz theory. We deform the original integration domain in the complex plane onto the Lefschetz thimbles and numerically evaluate the integral.
   
 ## Installation
 The PicardLefschetzIntegration package can be installed with the Julia package manager.

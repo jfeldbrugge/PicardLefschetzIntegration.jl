@@ -178,7 +178,7 @@ pars = parameters(δ = 1., τ = -10., ϵ = 0.1, N = 20, n = 8, dim = 2)
 φ(p) = exp(- (p[1]^2 + 2 * p[2]^2) / 2)
 T(p, y₁, y₂, ω) = ω * (((p[1] - y₁)^2 + (p[2] - y₂)^2) / 2. + φ(p))
 
-aRange_L, bRange_L = range(-2., 2., 8), range(-2., 2., 8)
+aRange_L, bRange_L = range(-2., 2., 20), range(-2., 2., 20)
 
 thimbles = Array{thimble}(undef, length(aRange_L), length(bRange_L));
 let ω = 1
