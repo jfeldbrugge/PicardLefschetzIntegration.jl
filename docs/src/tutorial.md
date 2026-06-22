@@ -218,7 +218,7 @@ Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$
 
 ```@example tutorial4
 aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
-let ω = 75
+let ω = 50
     data = zeros(Complex, length(aRange), length(bRange));
     Threads.@threads for (i, j) in collect(Iterators.product(eachindex(aRange),eachindex(bRange)))
         y₁, y₂ = aRange[i], bRange[j]
