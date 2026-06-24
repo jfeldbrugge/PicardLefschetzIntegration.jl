@@ -1,3 +1,6 @@
 [deps]
 PicardLefschetzIntegration = "86202789-ec99-4348-b84a-34e9b1fc693e"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+PicardLefschetzIntegration = "1.0.1"
