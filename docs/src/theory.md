@@ -33,11 +33,11 @@ The evaluation of the integral along the Lefschetz thimbles in the complex plane
 
 * We flow the vertices of the simplices in the complex plane, following the downward flow
 ```math
-\frac{\partial \gamma_\lambda(\boldsymbol{x}_0)}{\partial \lambda} = - \overline{\frac{\partial S(\gamma_\lambda(\boldsymbol{x}_0))}{\partial \boldsymbol{x}}}\,,
+\frac{\partial \gamma_\lambda(\boldsymbol{x}_0)}{\partial \lambda} = - \overline{\frac{\partial f(\gamma_\lambda(\boldsymbol{x}_0))}{\partial \boldsymbol{x}}}\,,
 ```
 with the boundary condition $\gamma_{\lambda = 0}(\boldsymbol{x}_0) = \boldsymbol{x}_0$. In particular, using the Euler method, we evolve the points $\boldsymbol{p}_j$ using the rule 
 ```math
-\boldsymbol{p}_j \mapsto \boldsymbol{p}_j - \epsilon \overline{\frac{\partial S(\boldsymbol{p}_j)}{\partial \boldsymbol{x}}}\,,
+\boldsymbol{p}_j \mapsto \boldsymbol{p}_j - \epsilon \overline{\frac{\partial f(\boldsymbol{p}_j)}{\partial \boldsymbol{x}}}\,,
 ```
 with step size $\epsilon$. 
 
