@@ -402,15 +402,20 @@ function quadrature(thim::thimble, pars::parameters)
 end
 
 """
-    PL_integrate(S, Q::quadrature, pars::parameters)
+    PL_integrate(S, Q::quadrature, pars::parameters; τ = pars.τ)
 
 Evaluate the integral ∫exp(im * S(x))dx with the quadrature rule Q on the thimble. Simplices on which
-the real part of im * S is below the threshold pars.τ at all vertices are skipped.
+the real part of im * S is below the threshold τ at all vertices are skipped.
+
+By default τ is the threshold pars.τ used in the flow. When a thimble is flowed for one exponent and
+reused for a larger one, for example flowed for S and integrated for ω S with ω > 1, this threshold
+skips most of the thimble and costs accuracy. A lower threshold, such as τ = -40 (exp(-40) ≈ 4e-18),
+then keeps every contribution that matters in double precision.
 """
-function PL_integrate(S, Q::quadrature, pars::parameters)
+function PL_integrate(S, Q::quadrature, pars::parameters; τ = pars.τ)
     sum = zero(ComplexF64)
     for (s, sim) in enumerate(Q.simplices)
-        any(v -> real(im * S(view(Q.vertices, :, v))) > pars.τ, sim) || continue
+        any(v -> real(im * S(view(Q.vertices, :, v))) > τ, sim) || continue
 
         for k in (s - 1) * Q.npts + 1:s * Q.npts
             sum += Q.weights[k] * exp(im * S(view(Q.nodes, :, k)))
@@ -421,11 +426,12 @@ function PL_integrate(S, Q::quadrature, pars::parameters)
 end
 
 """
-    PL_integrate(S, thim::thimble, pars::parameters)
+    PL_integrate(S, thim::thimble, pars::parameters; τ = pars.τ)
 
-Evaluate the integral ∫exp(im * S(x))dx along the thimble.
+Evaluate the integral ∫exp(im * S(x))dx along the thimble. See PL_integrate(S, Q::quadrature, pars) for
+the threshold τ.
 """
-PL_integrate(S, thim::thimble, pars::parameters) = PL_integrate(S, quadrature(thim, pars), pars)
+PL_integrate(S, thim::thimble, pars::parameters; τ = pars.τ) = PL_integrate(S, quadrature(thim, pars), pars; τ = τ)
 
 # function triPlot(thim::thimble)
 #     filter!(sim->sim.active, thim.simplices)

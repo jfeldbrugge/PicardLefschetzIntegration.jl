@@ -87,7 +87,7 @@ end
 map(t->length(t.simplices), thimbles)
 ```
 
-Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
+Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at $\omega = 1$, where the threshold `pars.τ` cuts off the exponentially small tails. At larger $\omega$ that threshold would skip most of the thimble, so we integrate with the lower threshold `τ = -40`, below which contributions are negligible in double precision.
 ```@example tutorial2
 quads = map(t -> quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 200), range(-2., 2., 200)
@@ -99,7 +99,7 @@ let ω = 20.
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
         
-        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, ω), quads[ii, jj], pars; τ = -40.)
     end
 
     fig = Figure()
@@ -141,7 +141,7 @@ end
 map(t->length(t.simplices), thimbles)
 ```
 
-Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
+Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at $\omega = 1$, where the threshold `pars.τ` cuts off the exponentially small tails. At larger $\omega$ that threshold would skip most of the thimble, so we integrate with the lower threshold `τ = -40`, below which contributions are negligible in double precision.
 ```@example tutorial3
 quads = map(t -> quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 100), range(-2., 2., 100)
@@ -153,7 +153,7 @@ let ω = 20, x₃ = 1
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
         
-        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, x₃, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, x₃, ω), quads[ii, jj], pars; τ = -40.)
     end
 
     fig = Figure()
@@ -216,7 +216,7 @@ end
 plotMesh(thimbles[4, 4])
 ```
 
-Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
+Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at $\omega = 1$, where the threshold `pars.τ` cuts off the exponentially small tails. At larger $\omega$ that threshold would skip most of the thimble, so we integrate with the lower threshold `τ = -40`, below which contributions are negligible in double precision.
 
 ```@example tutorial4
 quads = map(t -> quadrature(t, pars), thimbles)
@@ -227,7 +227,7 @@ let ω = 50
         y₁, y₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, y₁), find_closest(bRange_L, y₂)
         
-        data[i, j] = PL_integrate(p -> T(p, y₁, y₂, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> T(p, y₁, y₂, ω), quads[ii, jj], pars; τ = -40.)
     end
     data = ω / (2π * im) .* data
     

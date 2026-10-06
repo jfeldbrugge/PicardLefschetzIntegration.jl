@@ -36,6 +36,17 @@ using Test
         @test abs(PL_integrate(p -> ω * S₂(p), Q, pars) - im * π / ω) < 1e-7
     end
 
+    # Integration threshold: a thimble flowed for S and reused for ω S. The default threshold pars.τ
+    # skips most of the thimble; a lower threshold keeps the contributions that matter.
+    pars = parameters(δ = 0.5, τ = -10., ϵ = 0.1, N = 40, n = 5, dim = 2)
+    thim = initialGrid([-4, -4], [4, 4], pars)
+    flow!(S₂, thim, pars)
+    Q = quadrature(thim, pars)
+    @test PL_integrate(S₂, Q, pars) == PL_integrate(S₂, Q, pars; τ = pars.τ)
+    @test abs(PL_integrate(p -> 5 * S₂(p), Q, pars) - im * π / 5) > 1e-6
+    @test abs(PL_integrate(p -> 5 * S₂(p), Q, pars; τ = -40.) - im * π / 5) < 1e-8
+    @test PL_integrate(p -> 5 * S₂(p), thim, pars; τ = -40.) == PL_integrate(p -> 5 * S₂(p), Q, pars; τ = -40.)
+
     # The subdivision keeps the triangulation conforming: the edges that belong to a single triangle are
     # exactly the edges on the boundary of the initial grid
     function boundary_edges(thim)
