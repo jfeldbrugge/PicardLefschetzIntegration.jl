@@ -196,60 +196,46 @@ end
 ##############################
 
 """
-    divide(thim, pars::parameters)
+    divide(thim, pars::parameters, dictionary = Dict{Vector{Int}, Int}())
 
-Subdivide the simplices that have an edge longer than the threshold pars.δ.
+Subdivide the simplices that have an edge longer than the threshold pars.δ by bisecting their longest edge.
+A simplex whose edges are all shorter than pars.δ, but which has an edge that was bisected in a neighbouring
+simplex, is bisected along that edge, so that the triangulation stays conforming. The dictionary maps the
+bisected edges to the index of their midpoint.
 """
-function divide(thim, pars::parameters)
-    dictionary = Dict()
+function divide(thim, pars::parameters, dictionary = Dict{Vector{Int}, Int}())
     for i in eachindex(thim.simplices)
-        sim_coord = thim.simplices[i].coord
         if thim.simplices[i].active
+            sim_coord = thim.simplices[i].coord
             edges = filter(v -> issorted(v), collect(permutations(sim_coord, 2)))
-    
-            # Check whether an edge of the simplex sim if it has already been subdivided
-            subdivided = false
-            for edge in edges
-                if haskey(dictionary, edge) && subdivided == false
-                    subdivided = true
-                    thim.simplices[i].active = false
-    
-                    index_newPoint = dictionary[edge]
-    
-                    newsim1 = copy(sim_coord)
-                    newsim2 = copy(sim_coord)
-                    replace!(newsim1, edge[1] => index_newPoint)
-                    replace!(newsim2, edge[2] => index_newPoint)
-                    
-                    push!(thim.simplices, index(newsim1))
-                    push!(thim.simplices, index(newsim2))
-                end
+            edge_lengths = [norm(thim.points[edge[1]].coord - thim.points[edge[2]].coord) for edge in edges]
+            index_longest = argmax(edge_lengths)
+
+            # Bisect the longest edge when it exceeds pars.δ. Otherwise, bisect an edge that has already been
+            # bisected in a neighbouring simplex. Splitting a shorter edge first can keep a long edge alive
+            # indefinitely, in which case the subdivision never terminates.
+            if edge_lengths[index_longest] > pars.δ
+                edge = edges[index_longest]
+            else
+                k = findfirst(e -> haskey(dictionary, e), edges)
+                k === nothing && continue
+                edge = edges[k]
             end
-    
-            # Check the length of the edges and subdivide the simpex when the longest edge exceeds pars.δ
-            if subdivided == false 
-                edge_lengths = [norm(thim.points[edge[1]].coord - thim.points[edge[2]].coord) for edge in edges]
-            
-                index_longest = argmax(edge_lengths)
-                if edge_lengths[index_longest] > pars.δ
-                    thim.simplices[i].active = false
-    
-                    newPoint = point((thim.points[edges[index_longest][1]].coord + thim.points[edges[index_longest][2]].coord) ./ 2)
-            
-                    push!(thim.points, newPoint)
-                    index_newPoint = length(thim.points)
-    
-                    newsim1 = copy(sim_coord)
-                    newsim2 = copy(sim_coord)
-                    replace!(newsim1, edges[index_longest][1] => index_newPoint)
-                    replace!(newsim2, edges[index_longest][2] => index_newPoint)
-                    
-                    push!(thim.simplices, index(newsim1))
-                    push!(thim.simplices, index(newsim2))
-    
-                    dictionary[edges[index_longest]] = index_newPoint
-                end
+
+            thim.simplices[i].active = false
+
+            index_newPoint = get!(dictionary, edge) do
+                push!(thim.points, point((thim.points[edge[1]].coord + thim.points[edge[2]].coord) ./ 2))
+                length(thim.points)
             end
+
+            newsim1 = copy(sim_coord)
+            newsim2 = copy(sim_coord)
+            replace!(newsim1, edge[1] => index_newPoint)
+            replace!(newsim2, edge[2] => index_newPoint)
+
+            push!(thim.simplices, index(newsim1))
+            push!(thim.simplices, index(newsim2))
         end
     end
 end
@@ -257,15 +243,17 @@ end
 """
     divide_rep(thim::thimble, pars::parameters)
 
-Repeat subdivision till all edges of the simplices are shorter than par.δ.
+Repeat subdivision till all edges of the simplices are shorter than par.δ. The bisected edges are remembered
+across the repetitions, so that no hanging vertices remain.
 """
 function divide_rep(thim::thimble, pars::parameters)
+    dictionary = Dict{Vector{Int}, Int}()
     n_old = length(thim.simplices)
     n_new = n_old + 1
 
     while n_old != n_new
         n_old = n_new
-        divide(thim, pars)
+        divide(thim, pars, dictionary)
         n_new = length(thim.simplices)
     end
     filter!(sim->sim.active, thim.simplices)
