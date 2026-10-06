@@ -59,7 +59,7 @@ map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-exam
  23  23  25  14  17   8   8  8
  22  21  16  15  16  16  10  9
  23  14  15  13  14  15  10  9
- 16  13  13  13  16  13  15  9</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
+ 16  13  13  13  16  13  15  9</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at <span>$\omega = 1$</span>, where the threshold <code>pars.τ</code> cuts off the exponentially small tails. At larger <span>$\omega$</span> that threshold would skip most of the thimble, so we integrate with the lower threshold <code>τ = -40</code>, below which contributions are negligible in double precision.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 200), range(-2., 2., 200)
 
 let ω = 20.
@@ -69,14 +69,14 @@ let ω = 20.
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
 
-        data[i, j] = PL_integrate(p -&gt; S(p, x₁, x₂, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -&gt; S(p, x₁, x₂, ω), quads[ii, jj], pars; τ = -40.)
     end
 
     fig = Figure()
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="4655f924.png" alt="Example block output"/><h2 id="Elliptic-integral"><a class="docs-heading-anchor" href="#Elliptic-integral">Elliptic integral</a><a id="Elliptic-integral-1"></a><a class="docs-heading-anchor-permalink" href="#Elliptic-integral" title="Permalink"></a></h2><p>Consider the canonical diffraction integral associated with the unfolding of the elliptic integral</p><p class="math-container">\[I = \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
+end</code></pre><img src="acec867e.png" alt="Example block output"/><h2 id="Elliptic-integral"><a class="docs-heading-anchor" href="#Elliptic-integral">Elliptic integral</a><a id="Elliptic-integral-1"></a><a class="docs-heading-anchor-permalink" href="#Elliptic-integral" title="Permalink"></a></h2><p>Consider the canonical diffraction integral associated with the unfolding of the elliptic integral</p><p class="math-container">\[I = \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
     t^3 - 3 t v^2 - x_3 (t^2 + v^2) - x_2 v - x_1 t
 \right)}\mathrm{d}t \mathrm{d}v\,.\]</p><p>We evaluate the thimbles on a coarse lattice in <span>$x_1$</span> and <span>$x_2$</span> for <span>$x_3 = 1$</span></p><pre><code class="language-julia hljs">using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie
 
@@ -105,7 +105,7 @@ map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-exam
  1136  1224  1390  1538  1538  1390  1224  1136
  1166  1224  1309  1459  1459  1309  1224  1166
  1130  1191  1167  1132  1132  1167  1191  1130
- 1043  1122   998   927   927   998  1122  1043</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
+ 1043  1122   998   927   927   998  1122  1043</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at <span>$\omega = 1$</span>, where the threshold <code>pars.τ</code> cuts off the exponentially small tails. At larger <span>$\omega$</span> that threshold would skip most of the thimble, so we integrate with the lower threshold <code>τ = -40</code>, below which contributions are negligible in double precision.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 100), range(-2., 2., 100)
 
 let ω = 20, x₃ = 1
@@ -115,14 +115,14 @@ let ω = 20, x₃ = 1
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
 
-        data[i, j] = PL_integrate(p -&gt; S(p, x₁, x₂, x₃, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -&gt; S(p, x₁, x₂, x₃, ω), quads[ii, jj], pars; τ = -40.)
     end
 
     fig = Figure()
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="89e0eb03.png" alt="Example block output"/><h2 id="2D-Gaussian-lens"><a class="docs-heading-anchor" href="#2D-Gaussian-lens">2D Gaussian lens</a><a id="2D-Gaussian-lens-1"></a><a class="docs-heading-anchor-permalink" href="#2D-Gaussian-lens" title="Permalink"></a></h2><p>Consider the Kirchhoff-Fresnel diffraction integral associated with a thin Gaussian lens </p><p class="math-container">\[I = \frac{\omega}{2\pi i} \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
+end</code></pre><img src="ed503f71.png" alt="Example block output"/><h2 id="2D-Gaussian-lens"><a class="docs-heading-anchor" href="#2D-Gaussian-lens">2D Gaussian lens</a><a id="2D-Gaussian-lens-1"></a><a class="docs-heading-anchor-permalink" href="#2D-Gaussian-lens" title="Permalink"></a></h2><p>Consider the Kirchhoff-Fresnel diffraction integral associated with a thin Gaussian lens </p><p class="math-container">\[I = \frac{\omega}{2\pi i} \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
     \frac{(\bm{x}-\bm{y})^2}{2} + e^{\frac{1+x_1^2 + 2 x_2^2}{2}}
 \right)}\mathrm{d}x_1 \mathrm{d}x_2\,.\]</p><p>We evaluate the thimbles on a coarse lattice in <span>$y_1$</span> and <span>$y_2$</span>,</p><pre><code class="language-julia hljs">using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie, GeometryBasics
 
@@ -178,7 +178,7 @@ map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-exam
     fig
 end
 
-plotMesh(thimbles[4, 4])</code></pre><img src="35ff5268.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
+plotMesh(thimbles[4, 4])</code></pre><img src="35ff5268.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap. The thimbles were flowed at <span>$\omega = 1$</span>, where the threshold <code>pars.τ</code> cuts off the exponentially small tails. At larger <span>$\omega$</span> that threshold would skip most of the thimble, so we integrate with the lower threshold <code>τ = -40</code>, below which contributions are negligible in double precision.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
 aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
 let ω = 50
     data = zeros(Complex, length(aRange), length(bRange));
@@ -186,7 +186,7 @@ let ω = 50
         y₁, y₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, y₁), find_closest(bRange_L, y₂)
 
-        data[i, j] = PL_integrate(p -&gt; T(p, y₁, y₂, ω), quads[ii, jj], pars)
+        data[i, j] = PL_integrate(p -&gt; T(p, y₁, y₂, ω), quads[ii, jj], pars; τ = -40.)
     end
     data = ω / (2π * im) .* data
 
@@ -194,4 +194,4 @@ let ω = 50
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="7f9fbfd2.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Tuesday 6 October 2026 10:45">Tuesday 6 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="f0dd3e30.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Tuesday 6 October 2026 13:46">Tuesday 6 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
