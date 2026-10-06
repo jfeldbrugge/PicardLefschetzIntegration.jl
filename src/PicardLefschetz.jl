@@ -364,44 +364,72 @@ end
 ##############################
 
 """
-    get_affine_map(vertices)
+    quadrature
 
-Affine map mapping a general simplex to a standard simplex.
+The simplex quadrature rule on a thimble. Building it once and reusing it avoids repeating
+the setup in every call of PL_integrate, for instance when evaluating the integral for many
+values of the parameters on the same thimble.
+
+    nodes::Matrix{ComplexF64}       The quadrature nodes, one per column.
+    weights::Vector{ComplexF64}     The quadrature weights multiplied by the Jacobian of their simplex.
+    vertices::Matrix{ComplexF64}    The vertices of the thimble, one per column.
+    simplices::Vector{Vector{Int}}  The indices of the vertices spanning each simplex.
+    npts::Int                       The number of quadrature nodes per simplex.
 """
-function get_affine_map(vertices)
-    v₀ = vertices[1, :]
-    B = transpose(vertices[2:end, :]) .- v₀
-    return v₀, B
+struct quadrature
+    nodes::Matrix{ComplexF64}
+    weights::Vector{ComplexF64}
+    vertices::Matrix{ComplexF64}
+    simplices::Vector{Vector{Int}}
+    npts::Int
 end
 
 """
-    mapping(p, vertices)
+    quadrature(thim::thimble, pars::parameters)
 
-Map the standard simplex to a point in the simplex spanned by vertices.
+Construct the simplex quadrature rule of order pars.n on the thimble.
 """
-function mapping(p, vertices)
-    @assert length(p) == size(vertices, 2) "The dimension of p should be the same as the dimension of the points in vertices"
-    v₀, B = get_affine_map(vertices)
-    return v₀ + B * p
+function quadrature(thim::thimble, pars::parameters)
+    X, W = simplexquad(pars.n, pars.dim)
+
+    vertices = reduce(hcat, [ComplexF64.(p.coord) for p in thim.points], init = Matrix{ComplexF64}(undef, pars.dim, 0))
+    simplices = map(sim -> sim.coord, thim.simplices)
+
+    nodes = Matrix{ComplexF64}(undef, pars.dim, length(W) * length(simplices))
+    weights = Vector{ComplexF64}(undef, length(W) * length(simplices))
+    for (s, sim) in enumerate(simplices)
+        # Affine map from the standard simplex to the simplex sim
+        v₀ = vertices[:, sim[1]]
+        B = vertices[:, sim[2:end]] .- v₀
+        J = det(B)
+
+        for q in eachindex(W)
+            k = (s - 1) * length(W) + q
+            nodes[:, k] = v₀ + B * X[q, :]
+            weights[k] = W[q] * J
+        end
+    end
+
+    return quadrature(nodes, weights, vertices, simplices, length(W))
 end
 
 """
-    jacobian(vertices)
+    PL_integrate(S, Q::quadrature, pars::parameters)
 
-Evaluate the Jacobian of the affine map
+Evaluate the integral ∫exp(im * S(x))dx with the quadrature rule Q on the thimble. Simplices on which
+the real part of im * S is below the threshold pars.τ at all vertices are skipped.
 """
-function jacobian(vertices)
-    return det(get_affine_map(vertices)[2])
-end
+function PL_integrate(S, Q::quadrature, pars::parameters)
+    sum = zero(ComplexF64)
+    for (s, sim) in enumerate(Q.simplices)
+        any(v -> real(im * S(view(Q.vertices, :, v))) > pars.τ, sim) || continue
 
-"""
-    integrateSimplex(f, vertices, X, W)
+        for k in (s - 1) * Q.npts + 1:s * Q.npts
+            sum += Q.weights[k] * exp(im * S(view(Q.nodes, :, k)))
+        end
+    end
 
-Integrae f over a simplex spanned by vertices with a simplex quadrature method with the points X and the weights W.
-"""
-function integrateSimplex(f, vertices, X, W)
-    integrand(p) = jacobian(vertices) * f(mapping(p, vertices))
-    return sum(W[i] * integrand(X[i,:]) for i in 1:length(W))
+    return sum
 end
 
 """
@@ -409,21 +437,7 @@ end
 
 Evaluate the integral ∫exp(im * S(x))dx along the thimble.
 """
-function PL_integrate(S, thim::thimble, pars::parameters)
-    X, W = simplexquad(pars.n, pars.dim)
-
-    points_r = map(p->p.coord, thim.points)
-    simplices_r = map(sim->sim.coord, thim.simplices)
-
-    sum = 0
-    for sim in simplices_r
-        if maximum(real.(im * map(S, points_r[sim]))) > pars.τ
-            sum += integrateSimplex(p -> exp(im * S(p)), stack(points_r[sim], dims=1), X, W)
-        end
-    end
-
-    return sum
-end
+PL_integrate(S, thim::thimble, pars::parameters) = PL_integrate(S, quadrature(thim, pars), pars)
 
 # function triPlot(thim::thimble)
 #     filter!(sim->sim.active, thim.simplices)

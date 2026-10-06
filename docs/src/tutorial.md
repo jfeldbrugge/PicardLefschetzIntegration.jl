@@ -87,8 +87,9 @@ end
 map(t->length(t.simplices), thimbles)
 ```
 
-Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$
+Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
 ```@example tutorial2
+quads = map(t -> quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 200), range(-2., 2., 200)
 
 let ω = 20.
@@ -98,7 +99,7 @@ let ω = 20.
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
         
-        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, ω), thimbles[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, ω), quads[ii, jj], pars)
     end
 
     fig = Figure()
@@ -140,8 +141,9 @@ end
 map(t->length(t.simplices), thimbles)
 ```
 
-Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$
+Next, we evaluate the integral on a fine lattice in $x_1$ and $x_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
 ```@example tutorial3
+quads = map(t -> quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 100), range(-2., 2., 100)
 
 let ω = 20, x₃ = 1
@@ -151,7 +153,7 @@ let ω = 20, x₃ = 1
         x₁, x₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, x₁), find_closest(bRange_L, x₂)
         
-        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, x₃, ω), thimbles[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> S(p, x₁, x₂, x₃, ω), quads[ii, jj], pars)
     end
 
     fig = Figure()
@@ -214,9 +216,10 @@ end
 plotMesh(thimbles[4, 4])
 ```
 
-Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$
+Next, we evaluate the integral on a fine lattice in $y_1$ and $y_2$. Each thimble is converted once into a `quadrature`, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.
 
 ```@example tutorial4
+quads = map(t -> quadrature(t, pars), thimbles)
 aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
 let ω = 50
     data = zeros(Complex, length(aRange), length(bRange));
@@ -224,7 +227,7 @@ let ω = 50
         y₁, y₂ = aRange[i], bRange[j]
         ii, jj = find_closest(aRange_L, y₁), find_closest(bRange_L, y₂)
         
-        data[i, j] = PL_integrate(p -> T(p, y₁, y₂, ω), thimbles[ii, jj], pars)
+        data[i, j] = PL_integrate(p -> T(p, y₁, y₂, ω), quads[ii, jj], pars)
     end
     data = ω / (2π * im) .* data
     
