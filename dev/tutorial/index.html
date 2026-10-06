@@ -98,14 +98,14 @@ let ω = 1, x₃ = 1
 end
 
 map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">8×8 Matrix{Int64}:
-  927  1123  1277  1227  1227  1277  1123   933
-  907  1230  1293  1366  1366  1291  1231   907
-  967  1082  1172  1597  1597  1172  1020   965
- 1233  1295  1354  1730  1730  1353  1295  1233
- 1124  1290  1430  1614  1614  1430  1290  1121
- 1178  1249  1379  1520  1517  1380  1251  1180
- 1138  1246  1254  1188  1188  1254  1246  1138
- 1093  1163  1038   936   936  1038  1163  1093</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
+  862  1017  1197  1131  1131  1197  1017   862
+  869  1171  1245  1331  1331  1245  1171   869
+  954   977  1083  1530  1530  1083   977   954
+ 1117  1226  1353  1662  1662  1353  1226  1117
+ 1136  1224  1390  1538  1538  1390  1224  1136
+ 1166  1224  1309  1459  1459  1309  1224  1166
+ 1130  1191  1167  1132  1132  1167  1191  1130
+ 1043  1122   998   927   927   998  1122  1043</code></pre><p>Next, we evaluate the integral on a fine lattice in <span>$x_1$</span> and <span>$x_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
 aRange, bRange = range(-2., 2., 100), range(-2., 2., 100)
 
 let ω = 20, x₃ = 1
@@ -122,7 +122,7 @@ let ω = 20, x₃ = 1
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="3e6442bb.png" alt="Example block output"/><h2 id="2D-Gaussian-lens"><a class="docs-heading-anchor" href="#2D-Gaussian-lens">2D Gaussian lens</a><a id="2D-Gaussian-lens-1"></a><a class="docs-heading-anchor-permalink" href="#2D-Gaussian-lens" title="Permalink"></a></h2><p>Consider the Kirchhoff-Fresnel diffraction integral associated with a thin Gaussian lens </p><p class="math-container">\[I = \frac{\omega}{2\pi i} \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
+end</code></pre><img src="89e0eb03.png" alt="Example block output"/><h2 id="2D-Gaussian-lens"><a class="docs-heading-anchor" href="#2D-Gaussian-lens">2D Gaussian lens</a><a id="2D-Gaussian-lens-1"></a><a class="docs-heading-anchor-permalink" href="#2D-Gaussian-lens" title="Permalink"></a></h2><p>Consider the Kirchhoff-Fresnel diffraction integral associated with a thin Gaussian lens </p><p class="math-container">\[I = \frac{\omega}{2\pi i} \int_{-\infty}^\infty \int_{-\infty}^\infty  e^{i \omega \left(
     \frac{(\bm{x}-\bm{y})^2}{2} + e^{\frac{1+x_1^2 + 2 x_2^2}{2}}
 \right)}\mathrm{d}x_1 \mathrm{d}x_2\,.\]</p><p>We evaluate the thimbles on a coarse lattice in <span>$y_1$</span> and <span>$y_2$</span>,</p><pre><code class="language-julia hljs">using PicardLefschetzIntegration, ProgressMeter, Base.Threads, CairoMakie, GeometryBasics
 
@@ -145,26 +145,26 @@ let ω = 1
 end
 
 map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">20×20 Matrix{Int64}:
- 540  566  594  617  636  637  649  675  …  649  637  636  617  594  566  540
- 575  596  624  642  676  648  686  702     686  648  676  642  624  596  575
- 577  612  641  643  672  675  690  719     690  675  672  645  641  612  577
- 604  619  648  686  707  712  729  738     729  712  707  686  648  619  604
- 630  658  659  688  732  756  783  768     783  756  730  688  659  658  630
- 631  665  671  709  711  743  772  774  …  768  743  711  709  671  665  631
- 646  713  727  756  752  734  763  768     765  734  752  756  727  713  646
- 643  704  701  751  762  742  761  760     761  742  762  751  701  704  643
- 670  735  718  732  768  779  782  769     782  779  768  732  718  737  669
- 650  733  752  748  776  782  792  772     792  782  776  748  752  733  650
- 650  733  752  748  776  782  792  770  …  790  782  776  748  752  733  650
- 669  737  718  732  768  779  782  769     782  779  768  732  718  737  669
- 643  704  701  751  762  740  765  762     765  740  762  751  701  704  643
- 652  721  727  756  752  734  765  768     765  734  752  756  727  721  652
- 631  665  671  709  711  743  772  774     768  743  711  709  671  665  631
- 630  658  659  688  732  756  783  768  …  783  756  730  688  659  658  630
- 604  619  648  686  707  712  729  738     729  712  707  686  648  619  604
- 577  612  641  643  672  675  690  719     690  675  672  643  641  612  577
- 575  596  624  642  676  648  686  702     686  648  676  642  624  596  575
- 540  566  594  617  636  637  649  675     649  637  636  617  594  566  540</code></pre><p>The thimbles look like </p><pre><code class="language-julia hljs">function plotMesh(thim::thimble)
+ 540  566  594  617  636  637  649  673  …  649  637  636  617  594  566  540
+ 566  596  622  642  676  648  684  702     684  648  676  642  622  596  566
+ 577  612  641  643  672  673  690  711     690  673  672  643  641  612  577
+ 604  619  646  680  707  710  729  732     729  710  707  680  646  619  604
+ 621  648  658  686  732  754  777  754     777  754  732  686  658  648  621
+ 630  663  673  703  711  741  752  772  …  752  741  711  703  673  663  630
+ 646  706  714  752  748  731  755  768     755  731  748  752  714  706  646
+ 632  697  696  749  753  738  757  750     757  738  753  749  696  697  632
+ 670  727  718  732  760  771  776  763     776  771  760  732  718  727  670
+ 650  729  750  741  770  772  787  756     787  772  770  741  750  729  650
+ 650  729  750  741  770  772  787  756  …  787  772  770  741  750  729  650
+ 670  727  718  732  760  771  776  763     776  771  760  732  718  727  670
+ 632  697  696  749  753  738  757  750     757  738  753  749  696  697  632
+ 646  706  714  752  748  731  755  768     755  731  748  752  714  706  646
+ 630  663  673  703  711  741  752  772     752  741  711  703  673  663  630
+ 621  648  658  686  732  754  777  754  …  777  754  732  686  658  648  621
+ 604  619  646  680  707  710  729  732     729  710  707  680  646  619  604
+ 577  612  641  643  672  673  690  711     690  673  672  643  641  612  577
+ 566  596  622  642  676  648  684  702     684  648  676  642  622  596  566
+ 540  566  594  617  636  637  649  673     649  637  636  617  594  566  540</code></pre><p>The thimbles look like </p><pre><code class="language-julia hljs">function plotMesh(thim::thimble)
     verts1 = map(p -&gt; Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[1])), filter(p -&gt; p.active, thim.points))
     verts2 = map(p -&gt; Point3f(real(p.coord[1]), real(p.coord[2]), imag(p.coord[2])), filter(p -&gt; p.active, thim.points))
     faces = map(p -&gt;TriangleFace(p.coord), thim.simplices)
@@ -178,7 +178,7 @@ map(t-&gt;length(t.simplices), thimbles)</code></pre><pre class="documenter-exam
     fig
 end
 
-plotMesh(thimbles[4, 4])</code></pre><img src="ab4cac57.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
+plotMesh(thimbles[4, 4])</code></pre><img src="35ff5268.png" alt="Example block output"/><p>Next, we evaluate the integral on a fine lattice in <span>$y_1$</span> and <span>$y_2$</span>. Each thimble is converted once into a <code>quadrature</code>, which stores the quadrature nodes and weights, so that the many integrals reusing the same thimble are cheap.</p><pre><code class="language-julia hljs">quads = map(t -&gt; quadrature(t, pars), thimbles)
 aRange, bRange = range(-1., 1., 200), range(-1., 1., 200);
 let ω = 50
     data = zeros(Complex, length(aRange), length(bRange));
@@ -194,4 +194,4 @@ let ω = 50
     ax = Axis(fig[1, 1], aspect = 1)
     heatmap!(ax, aRange, bRange, abs.(data).^2, interpolate=true)
     fig
-end</code></pre><img src="6dc5d3ef.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Tuesday 6 October 2026 10:27">Tuesday 6 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+end</code></pre><img src="7f9fbfd2.png" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../theory/">« Theory</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.19.0 on <span class="colophon-date" title="Tuesday 6 October 2026 10:39">Tuesday 6 October 2026</span>. Using Julia version 1.13.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
